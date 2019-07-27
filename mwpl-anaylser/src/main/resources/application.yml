@@ -1,18 +1,16 @@
 spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      
+  profiles:    
+    active:
+    - prod  
+
 server:
   servlet:
     context-path: /mwpl-analyser
-      
+    
 ta:
   mwpl:
     nse:
       combined_vol_and_oi:
-        url: https://www.nseindia.com/archives/nsccl/mwpl/combineoi_
-        localFilePath: /Users/dhanagarajan/mwpl/
+        url: https://www.nseindia.com/archives/nsccl/mwpl/combineoi_      
         urlDateFormat: ddMMyyyy
         dbDateFormat: dd-MMM-yyyy

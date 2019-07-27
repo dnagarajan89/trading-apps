@@ -20,7 +20,7 @@ public class MwplController {
 
 	@GetMapping("/today")
 	List<CombinedVolAndOI> processMwplForToday() throws DateAlreadyProcessedException {
-		return nseMwplProcessor.processMwpl(LocalDate.now(), true);
+		return nseMwplProcessor.processMwpl(LocalDate.now().minusDays(1), true);
 	}
 
 }
