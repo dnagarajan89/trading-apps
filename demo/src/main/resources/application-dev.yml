@@ -1,0 +1,8 @@
+spring:
+  cloud:
+    gcp:
+      datastore:
+        project-id: trading-apps-247409
+        credentials:
+          location: file:/Users/dhanagarajan/Documents/gcpkeys/Trading apps-9d5bb40d567f.json
+        namespace: spring-demo
