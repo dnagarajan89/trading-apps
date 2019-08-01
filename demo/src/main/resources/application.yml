@@ -6,4 +6,4 @@ spring:
     
 server:
   servlet:
-    context-path: /demo=app
+    context-path: /demo-app
