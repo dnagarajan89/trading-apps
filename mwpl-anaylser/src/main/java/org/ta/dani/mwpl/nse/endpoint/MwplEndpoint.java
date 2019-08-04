@@ -1,6 +1,5 @@
 package org.ta.dani.mwpl.nse.endpoint;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,12 @@ public class MwplEndpoint {
 
 	@GetMapping("/today")
 	List<CombinedVolAndOI> processMwplForToday() throws DateAlreadyProcessedException {
-		return nseMwplProcessor.processMwpl(LocalDate.now().minusDays(1), true);
+		return nseMwplProcessor.processMwpl(null, true);
+	}
+	
+	@GetMapping("mwpl-data")
+	List<CombinedVolAndOI> readMwplData() {
+		return nseMwplProcessor.readMwplData(null);
 	}
 
 }

@@ -11,6 +11,7 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -44,12 +45,10 @@ public class NseMwplProcessor {
 	@Value("${ta.mwpl.nse.combined_vol_and_oi.urlDateFormat}")
 	private String urlDateFormat;
 
-	@Value("${ta.mwpl.nse.combined_vol_and_oi.dbDateFormat}")
-	private String dbDateFormat;
-
 	private static Logger logger = LoggerFactory.getLogger(NseMwplProcessor.class);
 
-	public List<CombinedVolAndOI> processMwpl(LocalDate date, boolean deleteEntriesIfExists) throws DateAlreadyProcessedException {
+	public List<CombinedVolAndOI> processMwpl(LocalDate date, boolean deleteEntriesIfExists)
+			throws DateAlreadyProcessedException {
 		String dateInString = null;
 		if (date != null) {
 			dateInString = MwplUtils.localDateToString(date, urlDateFormat);
@@ -84,10 +83,9 @@ public class NseMwplProcessor {
 		}
 
 		if (deleteEntriesIfExists) {
-			List<CombinedVolAndOI> existingEntries = combinedVolAndOIRepository
-					.findByDate(MwplUtils.localDateToString(date, "dd-MMM-yyyy"));
+			List<CombinedVolAndOI> existingEntries = combinedVolAndOIRepository.findByDate(date);
 			if (!CollectionUtils.isEmpty(existingEntries)) {
-				combinedVolAndOIRepository.deleteByDate(MwplUtils.localDateToString(date, dbDateFormat));
+				combinedVolAndOIRepository.deleteByDate(date);
 			}
 		}
 
@@ -111,7 +109,7 @@ public class NseMwplProcessor {
 				if (lineNumber > 1) {
 					String[] data = line.split(",");
 					CombinedVolAndOI combinedVolAndOI = new CombinedVolAndOI();
-					combinedVolAndOI.setDate(data[0]);
+					combinedVolAndOI.setDate(MwplUtils.stringToLocalDate(data[0], "dd-MMM-yyyy"));
 					combinedVolAndOI.setISIN(data[1]);
 					combinedVolAndOI.setScriptName(data[2]);
 					combinedVolAndOI.setNseSymbol(data[3]);
@@ -198,6 +196,24 @@ public class NseMwplProcessor {
 			throw new MwplProcessException("Error when unziping " + zipFile, e);
 		}
 		return xmlFile;
+	}
+
+	public List<CombinedVolAndOI> readMwplData(LocalDate date) {
+		if(date == null) {
+			LocalDate yesterday = LocalDate.now().minusDays(1);
+			int weekendOffset = 0;
+			if (yesterday.getDayOfWeek() == DayOfWeek.SUNDAY) {
+				weekendOffset = 2;
+			} else if (yesterday.getDayOfWeek() == DayOfWeek.SATURDAY) {
+				weekendOffset = 1;
+			}
+			if (weekendOffset > 0) {
+				date = yesterday.minusDays(weekendOffset);
+			}
+		}
+		List<CombinedVolAndOI> combinedVolAndOIs = combinedVolAndOIRepository.findByDate(date);
+		Collections.sort(combinedVolAndOIs, (a, b) -> a.getNseSymbol().compareTo(b.getNseSymbol()));
+		return combinedVolAndOIs;
 	}
 
 }

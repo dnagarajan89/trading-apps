@@ -1,7 +1,7 @@
 spring:
   profiles:    
     active:
-    - prod 
+    - dev 
 
 server:
   servlet:
@@ -13,4 +13,3 @@ ta:
       combined_vol_and_oi:
         url: https://www.nseindia.com/archives/nsccl/mwpl/combineoi_      
         urlDateFormat: ddMMyyyy
-        dbDateFormat: dd-MMM-yyyy

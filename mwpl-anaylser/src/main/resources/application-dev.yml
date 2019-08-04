@@ -1,11 +1,15 @@
 spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
+  cloud:
+    gcp:
+      datastore:
+        project-id: trading-apps-247409
+        credentials:
+          location: file:/Users/dhanagarajan/Documents/gcpkeys/Trading apps-9d5bb40d567f.json
+        namespace: trading-data
+
       
 ta:
   mwpl:
     nse:
       combined_vol_and_oi:
-        localFilePath: C:\Users\dnaga\git\mwpl
+        localFilePath: /Users/dhanagarajan/Documents/mwpl

@@ -2,6 +2,7 @@ package org.ta.dani.mwpl.utils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 
 public class MwplUtils {
 	
@@ -11,9 +12,11 @@ public class MwplUtils {
 	}
 	
 
-	public static LocalDate stirngToLocalDate(String date, String format) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(format);
-		return LocalDate.parse(date, dateTimeFormatter);
+	public static LocalDate stringToLocalDate(String date, String format) {
+		return LocalDate.parse(
+				date, 
+				new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(format).toFormatter()
+		);
 	}
 
 }

@@ -1,8 +1,3 @@
-spring:
-  data:
-    mongodb:
-      uri: mongodb+srv://mwpl-admin:mwpl@cluster0-xbdej.gcp.mongodb.net/test?retryWrites=true&w=majority
-      
 ta:
   mwpl:
     nse:

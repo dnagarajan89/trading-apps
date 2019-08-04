@@ -1,14 +1,15 @@
 package org.ta.dani.mwpl.nse.respository;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.cloud.gcp.data.datastore.repository.DatastoreRepository;
 import org.ta.dani.mwpl.nse.model.CombinedVolAndOI;
 
-public interface CombinedVolAndOIRepository extends CrudRepository<CombinedVolAndOI, String> {
+public interface CombinedVolAndOIRepository extends DatastoreRepository<CombinedVolAndOI, Long> {
 
-	void deleteByDate(String date);
+	void deleteByDate(LocalDate date);
 
-	List<CombinedVolAndOI> findByDate(String date);
+	List<CombinedVolAndOI> findByDate(LocalDate date);
 
 }
