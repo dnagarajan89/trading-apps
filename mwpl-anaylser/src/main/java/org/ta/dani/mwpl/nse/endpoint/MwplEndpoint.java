@@ -19,7 +19,7 @@ public class MwplEndpoint {
 
 	@GetMapping("/today")
 	List<CombinedVolAndOI> processMwplForToday() throws DateAlreadyProcessedException {
-		return nseMwplProcessor.processMwpl(null, false);
+		return nseMwplProcessor.processMwpl(null, true);
 	}
 	
 	@GetMapping("mwpl-data")

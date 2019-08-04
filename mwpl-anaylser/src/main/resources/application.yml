@@ -1,12 +1,15 @@
 spring:
   profiles:    
     active:
-    - dev 
+    - prod
+  data:
+    mongodb:
+      database: trading-data
 
 server:
   servlet:
     context-path: /mwpl-analyser
-    
+   
 ta:
   mwpl:
     nse:

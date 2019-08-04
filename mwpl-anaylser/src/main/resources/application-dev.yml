@@ -1,15 +1,10 @@
 spring:
-  cloud:
-    gcp:
-      datastore:
-        project-id: myquickbook-248812
-        credentials:
-          location: file:/Users/dhanagarajan/.ssh/gcpkeys/_myquickbook-dbdd446d3203.json
-        namespace: trading-data
-
-      
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
 ta:
   mwpl:
     nse:
       combined_vol_and_oi:
-        localFilePath: /Users/dhanagarajan/Documents/mwpl
+        localFilePath: D:\Projects\mwpl
