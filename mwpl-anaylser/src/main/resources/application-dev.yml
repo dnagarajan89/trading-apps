@@ -2,9 +2,9 @@ spring:
   cloud:
     gcp:
       datastore:
-        project-id: trading-apps-247409
+        project-id: myquickbook-248812
         credentials:
-          location: file:/Users/dhanagarajan/Documents/gcpkeys/Trading apps-9d5bb40d567f.json
+          location: file:/Users/dhanagarajan/.ssh/gcpkeys/_myquickbook-dbdd446d3203.json
         namespace: trading-data
 
       
