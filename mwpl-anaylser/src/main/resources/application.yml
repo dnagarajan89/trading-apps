@@ -1,7 +1,7 @@
 spring:
   profiles:    
     active:
-    - prod
+    - dev
   data:
     mongodb:
       database: trading-data
@@ -16,3 +16,17 @@ ta:
       combined_vol_and_oi:
         url: https://www.nseindia.com/archives/nsccl/mwpl/combineoi_      
         urlDateFormat: ddMMyyyy
+  notifications:
+    fromEmail: noreply@danistradeapp.com
+    toEmail: dnagarajan89@gmail.com
+    mwpl:
+      datastored:
+        templateId: d-9a2767fc6e044ed9b5237c8137446ee4
+        emailSubject: Mwpl data saved for {{processedDate}}
+        emailContent: Mwpl data saved for {{processedDate}}.
+      nodata:
+        emailSubject: No mwpl data found for {{attemptedDate}}
+        emailContent: No mwpl data found for {{attemptedDate}}.
+sendgrid:
+    apiKey: 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
+
