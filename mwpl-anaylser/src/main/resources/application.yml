@@ -16,6 +16,8 @@ ta:
       combined_vol_and_oi:
         url: https://www.nseindia.com/archives/nsccl/mwpl/combineoi_      
         urlDateFormat: ddMMyyyy
+        dbDateFormat: dd-MMM-yyyy
+        percentageDiff: 6.0
   notifications:
     fromEmail: noreply@danistradeapp.com
     toEmail: dnagarajan89@gmail.com

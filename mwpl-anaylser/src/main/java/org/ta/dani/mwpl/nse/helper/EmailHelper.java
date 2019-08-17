@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.ta.dani.mwpl.utils.MwplUtils;
+import org.ta.dani.mwpl.utils.MWPLUtils;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -48,7 +48,7 @@ public class EmailHelper {
         mail.setTemplateId(templateId);
 
         Personalization personalization = new Personalization();
-        String processedDateStr = MwplUtils.localDateToString(processedDate, "dd-MMM-yyyy");
+        String processedDateStr = MWPLUtils.localDateToString(processedDate, "dd-MMM-yyyy");
         String emailSubject, emailContent;
         if (isSaved) {
             emailSubject = dataStoredEmailSub.replace("{{processedDate}}", processedDateStr);
@@ -70,9 +70,6 @@ public class EmailHelper {
             request.setBody(mail.build());
             Response response = sg.api(request);
             logger.info("Email successfully processed with response status code: " + response.getStatusCode());
-            System.out.println(response.getStatusCode());
-            System.out.println(response.getBody());
-            System.out.println(response.getHeaders());
         } catch (IOException ex) {
             logger.error("Error sending notification email for " + processedDate, ex);
             return false;

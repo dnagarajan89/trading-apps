@@ -4,32 +4,41 @@ import java.io.*;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.ta.dani.mwpl.excepion.DateAlreadyProcessedException;
 import org.ta.dani.mwpl.excepion.MwplProcessException;
 import org.ta.dani.mwpl.nse.helper.EmailHelper;
+import org.ta.dani.mwpl.nse.helper.MwplDataHelper;
 import org.ta.dani.mwpl.nse.model.CombinedVolAndOI;
 import org.ta.dani.mwpl.nse.respository.CombinedVolAndOIRepository;
-import org.ta.dani.mwpl.utils.MwplUtils;
+import org.ta.dani.mwpl.nse.respository.EligibleScriptsRepository;
+import org.ta.dani.mwpl.nse.respository.MwplDataStoreTrackerRepository;
+
+import static java.util.Comparator.comparing;
+import static org.ta.dani.mwpl.utils.MWPLUtils.dervieMwplDate;
+import static org.ta.dani.mwpl.utils.MWPLUtils.localDateToString;
 
 @Component
 public class NseMwplProcessor {
 
     @Autowired
-    CombinedVolAndOIRepository combinedVolAndOIRepository;
+    private CombinedVolAndOIRepository combinedVolAndOIRepository;
+
+    @Autowired
+    private MwplDataStoreTrackerRepository mwplDataStoreTrackerRepository;
+
+    @Autowired
+    private EligibleScriptsRepository eligibleScriptsRepository;
 
     @Value("${ta.mwpl.nse.combined_vol_and_oi.url}")
     private String combinedVolAndOIUrl;
@@ -40,110 +49,60 @@ public class NseMwplProcessor {
     @Value("${ta.mwpl.nse.combined_vol_and_oi.urlDateFormat}")
     private String urlDateFormat;
 
+    @Value("${ta.mwpl.nse.combined_vol_and_oi.dbDateFormat}")
+    private String dbDateFormat;
+
     @Autowired
     EmailHelper emailHelper;
 
+    @Autowired
+    MwplDataHelper mwplDataHelper;
+
     private static Logger logger = LoggerFactory.getLogger(NseMwplProcessor.class);
 
-    public List<CombinedVolAndOI> processMwpl(LocalDate date, boolean deleteEntriesIfExists)
+    public List<CombinedVolAndOI> processMwpl(LocalDate dateToProcess, boolean deleteEntriesIfExists)
             throws DateAlreadyProcessedException {
-        String dateInString = null;
-        if (date != null) {
-            dateInString = MwplUtils.localDateToString(date, urlDateFormat);
+        logger.info("Starting MWPL processing");
+        String urlDateString = null;
+        if (dateToProcess != null) {
+            urlDateString = localDateToString(dateToProcess, urlDateFormat);
         } else {
-            LocalDate yesterday = LocalDate.now().minusDays(1);
-            int weekendOffset = 0;
-            if (yesterday.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                weekendOffset = 2;
-            } else if (yesterday.getDayOfWeek() == DayOfWeek.SATURDAY) {
-                weekendOffset = 1;
-            }
-            if (weekendOffset > 0) {
-                yesterday = yesterday.minusDays(weekendOffset);
-            }
-            date = yesterday;
-            dateInString = MwplUtils.localDateToString(yesterday, urlDateFormat);
-        }
-        String url = combinedVolAndOIUrl + dateInString + ".zip";
-        String filename = "combinedoi_" + dateInString + ".zip";
-        String filePath = localFilePath + dateInString;
-        File file = new File(filePath);
-        if (file.exists()) {
-            if (deleteEntriesIfExists) {
-                try {
-                    FileUtils.deleteDirectory(new File(filePath));
-                } catch (IOException e) {
-                    logger.error("Unable to delete file", e);
-                    throw new MwplProcessException("Error deleting directory " + filePath, e);
-                }
-            } else {
-                throw new DateAlreadyProcessedException("Mwpl already processed for " + date);
-            }
+            dateToProcess = dervieMwplDate(dateToProcess);
+            urlDateString = localDateToString(dateToProcess, urlDateFormat);
         }
 
+        logger.info("Processing MWPL data for " + dateToProcess);
+        String url = combinedVolAndOIUrl + urlDateString + ".zip";
+        String filename = "combinedoi_" + urlDateString + ".zip";
+        String filePath = localFilePath + urlDateString;
+        logger.info("Url: " + url);
+        logger.info("File name: " + filename);
+        logger.info("File path: " + filePath);
         if (deleteEntriesIfExists) {
-            List<CombinedVolAndOI> existingEntries = combinedVolAndOIRepository.findByDate(date);
-            if (!CollectionUtils.isEmpty(existingEntries)) {
-                combinedVolAndOIRepository.deleteByDate(date);
+            mwplDataHelper.cleanMWPLDataIfExists(filePath, dateToProcess);
+        } else {
+            if (mwplDataHelper.isDataExistsInDbFor(dateToProcess)) {
+                // Send email for already processed.
+                throw new DateAlreadyProcessedException("Already processed MWPL for date : " + dateToProcess);
+            }
+            if (new File(filePath).exists()) {
+                mwplDataHelper.cleanMWPLDataIfExists(filePath, null);
             }
         }
-
         try {
-			downloadFile(url, filePath, filename);
-		} catch (Exception e) {
-        	emailHelper.sendEmailForMwplData(date, false);
-		}
+            downloadFile(url, filePath, filename);
+        } catch (Exception e) {
+            emailHelper.sendEmailForMwplData(dateToProcess, false);
+        }
         String unzipUrl = filePath + File.separator + "unzipped";
         String zipFile = filePath + File.separator + filename;
         String csvFile = unZipAndGetCsvFileName(zipFile, unzipUrl);
         String csvFilePath = unzipUrl + File.separator + csvFile;
 
-        List<CombinedVolAndOI> combinedVolAndOIs = readMwplDataFromCsv(csvFilePath);
-        combinedVolAndOIs = (List<CombinedVolAndOI>) combinedVolAndOIRepository.saveAll(combinedVolAndOIs);
-        if (!CollectionUtils.isEmpty(combinedVolAndOIs))
-            emailHelper.sendEmailForMwplData(date, true);
+        List<CombinedVolAndOI> combinedVolAndOIs = mwplDataHelper.processMWPLDataAndSave(csvFilePath, dateToProcess);
         return combinedVolAndOIs;
     }
 
-    private List<CombinedVolAndOI> readMwplDataFromCsv(String csvFilePath) {
-        List<CombinedVolAndOI> combinedVolAndOIs = new ArrayList<>();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(csvFilePath), "UTF8"))) {
-            String line;
-            int lineNumber = 1;
-            while ((line = in.readLine()) != null) {
-                if (lineNumber > 1) {
-                    String[] data = line.split(",");
-                    CombinedVolAndOI combinedVolAndOI = new CombinedVolAndOI();
-                    combinedVolAndOI.setDate(MwplUtils.stringToLocalDate(data[0], "dd-MMM-yyyy"));
-                    combinedVolAndOI.setISIN(data[1]);
-                    combinedVolAndOI.setScriptName(data[2]);
-                    combinedVolAndOI.setNseSymbol(data[3]);
-                    if (StringUtils.isNumeric(data[4])) {
-                        combinedVolAndOI.setMwpl(Long.valueOf(data[4]));
-                    }
-                    if (StringUtils.isNumeric(data[5])) {
-                        combinedVolAndOI.setOpenInterest(Long.valueOf(data[5]));
-                    }
-                    if (StringUtils.isNumeric(data[6])) {
-                        combinedVolAndOI.setLimitForNextDay(Long.valueOf(data[6]));
-                    }
-                    if (combinedVolAndOI.getMwpl() == null || combinedVolAndOI.getOpenInterest() == null
-                            || combinedVolAndOI.getLimitForNextDay() == null) {
-                        combinedVolAndOI.setNoFreshPositions(true);
-                    }
-                    combinedVolAndOIs.add(combinedVolAndOI);
-                }
-                lineNumber++;
-            }
-        } catch (IOException e) {
-            logger.error("Error reading mwpl data from CSV", e);
-            throw new MwplProcessException("Error reading mwpl data from CSV " + csvFilePath, e);
-        } catch (Exception e) {
-            logger.error("Error reading mwpl data from CSV", e);
-            throw new MwplProcessException("Error reading mwpl data from CSV " + csvFilePath, e);
-        }
-        return combinedVolAndOIs;
-    }
 
     public void downloadFile(String url, String filePath, String filename) throws FileNotFoundException {
         File file = new File(filePath);
@@ -159,7 +118,7 @@ public class NseMwplProcessor {
             }
         } catch (IOException e) {
             if (e instanceof FileNotFoundException) {
-				throw (FileNotFoundException) e;
+                throw (FileNotFoundException) e;
             }
             logger.error("Error downloading the file" + url, e);
             throw new MwplProcessException("Error downloading the file " + url, e);
@@ -219,8 +178,8 @@ public class NseMwplProcessor {
                 date = yesterday.minusDays(weekendOffset);
             }
         }
-        List<CombinedVolAndOI> combinedVolAndOIs = combinedVolAndOIRepository.findByDate(date);
-        Collections.sort(combinedVolAndOIs, (a, b) -> a.getNseSymbol().compareTo(b.getNseSymbol()));
+        List<CombinedVolAndOI> combinedVolAndOIs = combinedVolAndOIRepository.findByDate(localDateToString(date, dbDateFormat));
+        Collections.sort(combinedVolAndOIs, comparing(CombinedVolAndOI::getNseSymbol));
         return combinedVolAndOIs;
     }
 

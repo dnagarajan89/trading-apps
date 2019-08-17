@@ -12,7 +12,7 @@ public class ScheduledTasks {
 	@Autowired
 	private NseMwplProcessor nseMwplProcessor;
 	
-	@Scheduled(cron = "	0 0 8 1/1 * TUE-SAT")
+	@Scheduled(cron = "0 0 2 1/1 * TUE-SAT")
 	public void executeTask() throws DateAlreadyProcessedException {
 		nseMwplProcessor.processMwpl(null, false);
 	}

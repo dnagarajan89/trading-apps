@@ -8,8 +8,9 @@ import org.ta.dani.mwpl.nse.model.CombinedVolAndOI;
 
 public interface CombinedVolAndOIRepository extends CrudRepository<CombinedVolAndOI, String> {
 
-	void deleteByDate(LocalDate date);
+	void deleteByDate(String date);
 
-	List<CombinedVolAndOI> findByDate(LocalDate date);
+	List<CombinedVolAndOI> findByDate(String date);
 
+	CombinedVolAndOI findByNseSymbolAndDate(String nseSymbol, String date);
 }
