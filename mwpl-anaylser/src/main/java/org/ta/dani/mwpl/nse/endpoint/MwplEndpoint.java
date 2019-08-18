@@ -15,17 +15,12 @@ import org.ta.dani.mwpl.nse.processor.NseMwplProcessor;
 @RequestMapping("/mwpl-api")
 public class MwplEndpoint {
 
-	@Autowired
-	NseMwplProcessor nseMwplProcessor;
+    @Autowired
+    NseMwplProcessor nseMwplProcessor;
 
-	@GetMapping("/today")
-	List<CombinedVolAndOI> processMwplForToday() throws DateAlreadyProcessedException {
-		return nseMwplProcessor.processMwpl(null, true);
-	}
-	
-	@GetMapping("mwpl-data")
-	List<CombinedVolAndOI> readMwplData() {
-		return nseMwplProcessor.readMwplData(null);
-	}
+    @GetMapping("/today")
+    List<CombinedVolAndOI> processMwplForToday() throws DateAlreadyProcessedException {
+        return nseMwplProcessor.processMwpl(null, true);
+    }
 
 }

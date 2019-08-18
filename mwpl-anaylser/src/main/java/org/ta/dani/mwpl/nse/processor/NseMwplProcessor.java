@@ -19,6 +19,7 @@ import org.ta.dani.mwpl.excepion.DateAlreadyProcessedException;
 import org.ta.dani.mwpl.excepion.MwplProcessException;
 import org.ta.dani.mwpl.nse.helper.EmailHelper;
 import org.ta.dani.mwpl.nse.helper.MwplDataHelper;
+import org.ta.dani.mwpl.nse.helper.StockPriceHelper;
 import org.ta.dani.mwpl.nse.model.CombinedVolAndOI;
 import org.ta.dani.mwpl.nse.respository.CombinedVolAndOIRepository;
 import org.ta.dani.mwpl.nse.respository.EligibleScriptsRepository;
@@ -57,6 +58,9 @@ public class NseMwplProcessor {
 
     @Autowired
     MwplDataHelper mwplDataHelper;
+
+    @Autowired
+    StockPriceHelper stockPriceHelper;
 
     private static Logger logger = LoggerFactory.getLogger(NseMwplProcessor.class);
 
@@ -140,7 +144,7 @@ public class NseMwplProcessor {
             while (ze != null) {
                 String fileName = ze.getName();
                 File newFile = new File(outputFolder + File.separator + fileName);
-                System.out.println("file unzip : " + newFile.getAbsoluteFile());
+                logger.info("Unzipping file : " + newFile.getAbsoluteFile());
                 try (FileOutputStream fos = new FileOutputStream(newFile)) {
                     int len;
                     while ((len = zis.read(buffer)) > 0) {
@@ -178,9 +182,13 @@ public class NseMwplProcessor {
                 date = yesterday.minusDays(weekendOffset);
             }
         }
-        List<CombinedVolAndOI> combinedVolAndOIs = combinedVolAndOIRepository.findByDate(localDateToString(date, dbDateFormat));
+        List<CombinedVolAndOI> combinedVolAndOIs = combinedVolAndOIRepository.findByDate(localDateToString(date, dbDateFormat).toUpperCase());
         Collections.sort(combinedVolAndOIs, comparing(CombinedVolAndOI::getNseSymbol));
         return combinedVolAndOIs;
+    }
+
+    public void processStockPriceForEligibleScripts() {
+        stockPriceHelper.processAndSave();
     }
 
 }

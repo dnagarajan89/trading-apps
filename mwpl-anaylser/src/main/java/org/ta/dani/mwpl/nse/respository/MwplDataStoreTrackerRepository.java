@@ -7,5 +7,8 @@ import java.time.Month;
 import java.util.List;
 
 public interface MwplDataStoreTrackerRepository extends CrudRepository<MwplDataStoreTracker, String> {
-    List<MwplDataStoreTracker> findByMonthAndIsMwplAvailableOrderByMwplDate(Month month, boolean isMwplAvailable);
+
+    List<MwplDataStoreTracker> findByMonthAndIsMwplAvailableOrderByMwplDateDesc(Month month, boolean isMwplAvailable);
+
+    void deleteByMwplDateInString(String date);
 }
