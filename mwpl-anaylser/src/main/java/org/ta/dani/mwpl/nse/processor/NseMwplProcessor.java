@@ -104,6 +104,7 @@ public class NseMwplProcessor {
         String csvFilePath = unzipUrl + File.separator + csvFile;
 
         List<CombinedVolAndOI> combinedVolAndOIs = mwplDataHelper.processMWPLDataAndSave(csvFilePath, dateToProcess);
+        mwplDataHelper.cleanMWPLDataIfExists(filePath, null);
         return combinedVolAndOIs;
     }
 

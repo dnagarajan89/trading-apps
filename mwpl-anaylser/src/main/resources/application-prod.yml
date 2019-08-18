@@ -7,4 +7,4 @@ ta:
   mwpl:
     nse:
       combined_vol_and_oi:
-        localFilePath: /tradeapp/downloadedFiles
+        localFilePath: /tradeapp/downloadedFiles/
