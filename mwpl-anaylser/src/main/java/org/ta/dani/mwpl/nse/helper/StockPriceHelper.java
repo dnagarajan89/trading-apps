@@ -55,15 +55,14 @@ public class StockPriceHelper {
     }
 
     public void processStockPriceForEligibleScript(EligibleScripts eligibleScripts) {
-        String eligibleScriptId = eligibleScripts.getId();
         JSONObject jsonObject = getStockQuote(eligibleScripts.getNseSymbol());
         if (jsonObject != null) {
             LocalDate priceDate = stringToLocalDate((String) jsonObject.get("secDate"), "dd-MMM-yyyy HH:mm:ss");
-            StockPriceTracker stockPriceTracker = stockPriceTrackerRepository.findByMonthAndDateOfRecord(eligibleScripts.getMonth(), localDateToString(priceDate, dbDatePattern));
+            StockPriceTracker stockPriceTracker = stockPriceTrackerRepository.findByMonthAndDateOfRecordAndNseSymbol(eligibleScripts.getMonth(), localDateToString(priceDate, dbDatePattern), eligibleScripts.getNseSymbol());
             if (stockPriceTracker == null) {
                 stockPriceTracker = new StockPriceTracker();
                 stockPriceTracker.setMonth(eligibleScripts.getMonth());
-                stockPriceTracker.setEligibleScriptId(eligibleScriptId);
+                stockPriceTracker.setNseSymbol(eligibleScripts.getNseSymbol());
                 stockPriceTracker.setUpdatedOn(LocalDateTime.now());
                 stockPriceTracker.setOpenPrice(Double.valueOf((String) jsonObject.get("open")));
                 stockPriceTracker.setClosePrice(Double.valueOf((String) jsonObject.get("closePrice")));

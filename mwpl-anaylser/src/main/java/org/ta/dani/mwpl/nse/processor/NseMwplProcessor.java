@@ -35,12 +35,6 @@ public class NseMwplProcessor {
     @Autowired
     private CombinedVolAndOIRepository combinedVolAndOIRepository;
 
-    @Autowired
-    private MwplDataStoreTrackerRepository mwplDataStoreTrackerRepository;
-
-    @Autowired
-    private EligibleScriptsRepository eligibleScriptsRepository;
-
     @Value("${ta.mwpl.nse.combined_vol_and_oi.url}")
     private String combinedVolAndOIUrl;
 

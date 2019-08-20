@@ -1,6 +1,5 @@
 package org.ta.dani.mwpl.nse.endpoint;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +16,17 @@ public class MwplEndpoint {
 
     @Autowired
     NseMwplProcessor nseMwplProcessor;
+    
 
     @GetMapping("/today")
     List<CombinedVolAndOI> processMwplForToday() throws DateAlreadyProcessedException {
         return nseMwplProcessor.processMwpl(null, true);
+    }
+    
+    @GetMapping("/stock")
+    String processStockPrice() throws DateAlreadyProcessedException {
+        nseMwplProcessor.processStockPriceForEligibleScripts();
+        return "Done!!!";
     }
 
 }

@@ -14,8 +14,8 @@ import java.time.Month;
 public class StockPriceTracker {
     @Id
     private String id;
-    @Field("eligible_script_id")
-    private String eligibleScriptId;
+    @Field("nse_symbol")
+    private String nseSymbol;
     @Field("open_price")
     private Double openPrice;
     @Field("close_price")

@@ -1,20 +1,21 @@
 package org.ta.dani.mwpl.nse.helper;
 
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.ta.dani.mwpl.utils.MWPLUtils.localDateToString;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpException;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,30 +23,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.ta.dani.mwpl.excepion.MwplProcessException;
-import org.ta.dani.mwpl.nse.model.*;
+import org.ta.dani.mwpl.nse.model.CombinedVolAndOI;
+import org.ta.dani.mwpl.nse.model.EligibilityDetail;
+import org.ta.dani.mwpl.nse.model.EligibleScripts;
+import org.ta.dani.mwpl.nse.model.MwplDataStoreTracker;
 import org.ta.dani.mwpl.nse.respository.CombinedVolAndOIRepository;
 import org.ta.dani.mwpl.nse.respository.EligibleScriptsRepository;
 import org.ta.dani.mwpl.nse.respository.MwplDataStoreTrackerRepository;
 import org.ta.dani.mwpl.nse.respository.StockPriceTrackerRepository;
-import org.ta.dani.mwpl.utils.MWPLUtils;
 import org.ta.dani.mwpl.utils.MwplCSVMapper;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URLEncoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.apache.commons.collections.CollectionUtils.*;
-import static org.ta.dani.mwpl.utils.MWPLUtils.localDateToString;
-import static org.ta.dani.mwpl.utils.MWPLUtils.stringToLocalDate;
 
 @Component
 public class MwplDataHelper {
@@ -62,9 +48,6 @@ public class MwplDataHelper {
 
     @Autowired
     private EligibleScriptsRepository eligibleScriptsRepository;
-
-    @Autowired
-    private StockPriceTrackerRepository stockPriceTrackerRepository;
 
     @Autowired
     private EmailHelper emailHelper;
