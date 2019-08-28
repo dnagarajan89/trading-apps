@@ -87,23 +87,25 @@ public class MwplDataHelper {
                 final String compareToDate = secondRecord.getMwplDateInString();
                 combinedVolAndOIs.stream().filter(data -> !data.isNoFreshPositions()).forEach(data -> {
                     CombinedVolAndOI combinedVolAndOIToCompare = combinedVolAndOIRepository.findByNseSymbolAndDate(data.getNseSymbol(), compareToDate.toUpperCase());
-                    Double percentageDiff = combinedVolAndOIToCompare.getPercentageOfOpenContracts() - data.getPercentageOfOpenContracts();
-                    EligibleScripts eligibleScripts = null;
-                    if (percentageDiff.compareTo(this.percentageDiff) >= 0) {
-                        eligibleScripts = eligibleScriptsRepository.findByMonthAndNseSymbol(date.getMonth(), data.getNseSymbol());
-                        if (eligibleScripts == null) {
-                            eligibleScripts = new EligibleScripts();
-                            eligibleScripts.setMonth(date.getMonth());
-                            eligibleScripts.setNseSymbol(data.getNseSymbol());
-                            eligibleScripts.setScriptName(data.getScriptName());
-                            eligibleScripts.setEligibleOnDate(localDateToString(date, dbDatePattern));
-                        }
-                        EligibilityDetail eligibilityDetail = new EligibilityDetail();
-                        eligibilityDetail.setComparedToDate(compareToDate);
-                        eligibilityDetail.setComparedWithDate(localDateToString(date, dbDatePattern));
-                        eligibilityDetail.setPercentageDifference(percentageDiff);
-                        eligibleScripts.addEligibilityDetail(eligibilityDetail);
-                        eligibleScriptsRepository.save(eligibleScripts);
+                    if(!combinedVolAndOIToCompare.isNoFreshPositions()) {
+	                    Double percentageDiff = combinedVolAndOIToCompare.getPercentageOfOpenContracts() - data.getPercentageOfOpenContracts();
+	                    EligibleScripts eligibleScripts = null;
+	                    if (percentageDiff.compareTo(this.percentageDiff) >= 0) {
+	                        eligibleScripts = eligibleScriptsRepository.findByMonthAndNseSymbol(date.getMonth(), data.getNseSymbol());
+	                        if (eligibleScripts == null) {
+	                            eligibleScripts = new EligibleScripts();
+	                            eligibleScripts.setMonth(date.getMonth());
+	                            eligibleScripts.setNseSymbol(data.getNseSymbol());
+	                            eligibleScripts.setScriptName(data.getScriptName());
+	                            eligibleScripts.setEligibleOnDate(localDateToString(date, dbDatePattern));
+	                        }
+	                        EligibilityDetail eligibilityDetail = new EligibilityDetail();
+	                        eligibilityDetail.setComparedToDate(compareToDate);
+	                        eligibilityDetail.setComparedWithDate(localDateToString(date, dbDatePattern));
+	                        eligibilityDetail.setPercentageDifference(percentageDiff);
+	                        eligibleScripts.addEligibilityDetail(eligibilityDetail);
+	                        eligibleScriptsRepository.save(eligibleScripts);
+	                    }
                     }
                 });
             }

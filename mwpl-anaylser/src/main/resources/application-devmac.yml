@@ -1,0 +1,10 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+ta:
+  mwpl:
+    nse:
+      combined_vol_and_oi:
+        localFilePath: /Users/dhanagarajan/Documents/trading_ws/mwpl

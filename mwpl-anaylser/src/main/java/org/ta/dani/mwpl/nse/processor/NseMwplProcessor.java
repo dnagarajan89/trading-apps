@@ -1,11 +1,19 @@
 package org.ta.dani.mwpl.nse.processor;
 
-import java.io.*;
+import static java.util.Comparator.comparing;
+import static org.ta.dani.mwpl.utils.MWPLUtils.dervieMwplDate;
+import static org.ta.dani.mwpl.utils.MWPLUtils.localDateToString;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -22,12 +30,6 @@ import org.ta.dani.mwpl.nse.helper.MwplDataHelper;
 import org.ta.dani.mwpl.nse.helper.StockPriceHelper;
 import org.ta.dani.mwpl.nse.model.CombinedVolAndOI;
 import org.ta.dani.mwpl.nse.respository.CombinedVolAndOIRepository;
-import org.ta.dani.mwpl.nse.respository.EligibleScriptsRepository;
-import org.ta.dani.mwpl.nse.respository.MwplDataStoreTrackerRepository;
-
-import static java.util.Comparator.comparing;
-import static org.ta.dani.mwpl.utils.MWPLUtils.dervieMwplDate;
-import static org.ta.dani.mwpl.utils.MWPLUtils.localDateToString;
 
 @Component
 public class NseMwplProcessor {
