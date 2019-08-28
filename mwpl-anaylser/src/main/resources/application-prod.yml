@@ -8,3 +8,6 @@ ta:
     nse:
       combined_vol_and_oi:
         localFilePath: /tradeapp/downloadedFiles/
+        
+logging:
+  file: /tradeapp/logs/
