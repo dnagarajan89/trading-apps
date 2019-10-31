@@ -17,7 +17,7 @@ ta:
         url: https://www.nseindia.com/archives/nsccl/mwpl/combineoi_      
         urlDateFormat: ddMMyyyy
         dbDateFormat: dd-MMM-yyyy
-        percentageDiff: 6.0
+        percentageDiff: 5.0
       quote_url: https://www.nseindia.com/live_market/dynaContent/live_watch/get_quote/GetQuote.jsp?
   notifications:
     fromEmail: noreply@danistradeapp.com
